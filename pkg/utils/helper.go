@@ -37,7 +37,7 @@ func CategorizeURL(rawURL string) string {
 
 	// Parametrized URLs
 	if len(parsed.Query()) > 0 {
-		return "Parametrized URLs"
+		return "Param_URLs"
 	}
 
 	return "pages"
