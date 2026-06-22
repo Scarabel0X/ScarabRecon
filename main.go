@@ -23,14 +23,14 @@ func main() {
 	headerFlag := flag.String("H", "", "Custom headers separated by commas (e.g., 'Authorization: Bearer token, X-Custom: value')")
 
 	flag.Usage = func() {
-		fmt.Printf("🚀 Scarabel URL Enumeration Tool\n\n")
+		fmt.Printf("Scarabel URL Enumeration Tool\n\n")
 		fmt.Printf("Usage:\n")
 		flag.PrintDefaults()
 	}
 
 	flag.Parse()
 
-	fmt.Println("🚀 Starting Scarabel URL Enumeration Tool...")
+	fmt.Println("🚀 Starting Scarabel URL Enumeration Tool (ScarabRecon)...")
 
 	var domains []string
 
