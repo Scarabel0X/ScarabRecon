@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"scaraburl/internal/runner"
+	"github.com/Scarabel0X/ScarabRecon/internal/runner"
 	"strings"
 
 	"github.com/cyinnove/logify"
