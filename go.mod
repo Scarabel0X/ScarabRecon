@@ -1,4 +1,4 @@
-module scaraburl
+module github.com/Scarabel0X/ScarabRecon
 
 go 1.26
 
