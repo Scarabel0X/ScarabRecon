@@ -4,11 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"github.com/Scarabel0X/ScarabRecon/internal/runner"
 	"strings"
+
+	"github.com/Scarabel0X/ScarabRecon/internal/runner"
 
 	"github.com/cyinnove/logify"
 )
+
+const Version = "v1.0.0"
 
 func main() {
 	domainFlag := flag.String("d", "", "Target domain(s) separated by commas (e.g., example.com,test.com)")
@@ -21,6 +24,7 @@ func main() {
 	jsFlag := flag.Bool("js", true, "Enable JavaScript files analysis (true/false)")
 	cookieFlag := flag.String("c", "", "Cookies to be sent with requests (e.g., 'session_id=12345')")
 	headerFlag := flag.String("H", "", "Custom headers separated by commas (e.g., 'Authorization: Bearer token, X-Custom: value')")
+	versionFlag := flag.Bool("v", false, "Print the version of ScarabRecon and exit")
 
 	flag.Usage = func() {
 		fmt.Printf("Scarabel URL Enumeration Tool\n\n")
@@ -32,8 +36,12 @@ func main() {
 
 	fmt.Println("🚀 Starting Scarabel URL Enumeration Tool (ScarabRecon)...")
 
-	var domains []string
+	if *versionFlag {
+		fmt.Printf("ScarabRecon Version: %s\n", Version)
+		os.Exit(0)
+	}
 
+	var domains []string
 	if *domainFlag != "" {
 		splitDomains := strings.Split(*domainFlag, ",")
 		for _, d := range splitDomains {
