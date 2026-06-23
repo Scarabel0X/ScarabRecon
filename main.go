@@ -13,7 +13,44 @@ import (
 
 const Version = "v1.0.0"
 
+func printBanner() {
+	// ألوان ANSI النيون
+	cyan := "\033[36m"
+	bold := "\033[1m"
+	reset := "\033[0m"
+
+	banner := `
+                 .  ,        ,  .
+                 \\ \\      // //
+                  \\ \\    // //
+            ___    \\ \\  // //    ___
+         .-'   '-.  \\ \\// //  .-'   '-.
+        /     ____\  \\_V_//  /____     \
+       |     /      \ | | | /      \     |
+       |    |   /\   || | ||   /\   |    |
+        \    \  \/  / | | | \  \/  /    /
+         '-._ '---'  /_/ \_\  '---' _.-'
+             '-.____|_______|____.-'
+                    |   |   |
+                    |===|===|
+                   /   / \   \
+                  /___/   \___\
+
+  ____                               ______                     
+ / ___|  ___  __ _ _ __ __ _ | |__  |  __ \  ___  ___ ___  _ __  
+ \___ \ / __|/ _' | '__/ _' || '_ \ | |__) |/ _ \/ __/ _ \| '_ \ 
+  ___) | (__| (_| | | | (_| || |_) ||  _  /|  __/ (_| (_) | | | |
+ |____/ \___|\__,_|_|  \__,_||_.__/ |_| \_\ \___|\___\___/|_| |_|
+	`
+
+	fmt.Printf("%s%s%s%s\n", bold, cyan, banner, reset)
+	fmt.Printf("\t\t  %s[+]: Developed by Scarabel0X%s\n\n", bold, reset)
+}
+
 func main() {
+
+	printBanner()
+
 	domainFlag := flag.String("d", "", "Target domain(s) separated by commas (e.g., example.com,test.com)")
 	listFlag := flag.String("l", "", "Path to a file containing a list of domains")
 	allowedFlag := flag.String("a", "", "Allowed domains separated by commas (e.g., api.target.com)")
