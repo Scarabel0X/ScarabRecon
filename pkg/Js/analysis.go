@@ -139,7 +139,7 @@ func getFileContent(url string, cookie string, headers []string) (string, error)
 
 // AnalyzeJSContent runs all regex-based extractors over the given JavaScript
 // source and returns the collected findings.
-func AnalyzeJSContent(source string, targetDomain string) (ScanResult, map[string]int, error) {
+func AnalyzeJSContent(source string, targetDomain string, src string) (ScanResult, map[string]int, error) {
 	resInt := make(map[string]int)
 	pretty := BeautifyJS(source)
 
@@ -228,7 +228,7 @@ func AnalyzeJSContent(source string, targetDomain string) (ScanResult, map[strin
 		"Secrets":      len(result.Secrets),
 		"NpmPackages":  len(result.NpmPackages),
 	}
-	logify.Infof("Analysis complete: %d subdomains, %d cloud buckets, %d endpoints, %d parameters, %d secrets, %d NPM packages",
+	logify.Infof("Analysis ( %s ) complete: %d subdomains, %d cloud buckets, %d endpoints, %d parameters, %d secrets, %d NPM packages", src,
 		len(result.Subdomains), len(result.CloudBuckets), len(result.Endpoints),
 		len(result.Parameters), len(result.Secrets), len(result.NpmPackages))
 
@@ -236,18 +236,26 @@ func AnalyzeJSContent(source string, targetDomain string) (ScanResult, map[strin
 }
 
 // ScanJSURL fetches a JavaScript file from the given URL and analyzes it.
-func scanJSURL(url string, cookie string, headers []string, targetDomain string) (ScanResult, map[string]int, error) {
-	body, err := getFileContent(url, cookie, headers)
+func scanJSURL(urlsrc string, cookie string, headers []string, targetDomain string) (ScanResult, map[string]int, error) {
+	srclink := ""
+	body, err := getFileContent(urlsrc, cookie, headers)
 	if err != nil {
-		logify.Errorf("Failed to fetch JS file from %s: %v", url, err)
+		logify.Errorf("Failed to fetch JS file from %s: %v", urlsrc, err)
 		return ScanResult{}, nil, err
 	}
-	res, resInt, err := AnalyzeJSContent(body, targetDomain)
+
+	u, err := url.Parse(urlsrc)
 	if err != nil {
-		logify.Errorf("Failed to analyze JS content from %s: %v", url, err)
+		logify.Errorf("Error in Parse jS Link : ", urlsrc)
+		srclink = urlsrc
+	}
+	srclink = u.Path
+	res, resInt, err := AnalyzeJSContent(body, targetDomain, srclink)
+	if err != nil {
+		logify.Errorf("Failed to analyze JS content from %s: %v", urlsrc, err)
 		return ScanResult{}, nil, err
 	}
-	res.URL = url
+	res.URL = urlsrc
 	return res, resInt, nil
 }
 
