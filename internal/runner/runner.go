@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"github.com/Scarabel0X/ScarabRecon/pkg/Active/crawl"
-	"github.com/Scarabel0X/ScarabRecon/pkg/Active/headless"
-	js "github.com/Scarabel0X/ScarabRecon/pkg/Js"
-	scraper "github.com/Scarabel0X/ScarabRecon/pkg/Scraper"
-	"github.com/Scarabel0X/ScarabRecon/pkg/Scraper/commoncrawl"
-	"github.com/Scarabel0X/ScarabRecon/pkg/Scraper/urlscan"
-	"github.com/Scarabel0X/ScarabRecon/pkg/Scraper/webarchive"
-	"github.com/Scarabel0X/ScarabRecon/pkg/utils"
+	"scaraburl/pkg/Active/crawl"
+	"scaraburl/pkg/Active/headless"
+	js "scaraburl/pkg/Js"
+	scraper "scaraburl/pkg/Scraper"
+	"scaraburl/pkg/Scraper/commoncrawl"
+	"scaraburl/pkg/Scraper/urlscan"
+	"scaraburl/pkg/Scraper/webarchive"
+	"scaraburl/pkg/utils"
 	"strings"
 
 	"github.com/cyinnove/logify"
@@ -144,7 +144,7 @@ func JsAnalysis(urls map[string]string, target string, threads int, cookie strin
 
 	logify.Infof("Starting JS analysis on %d URLs with %d threads...", len(urls), threads)
 
-	results, resInt, err := js.Analysis(jsUrl, threads, cookie, headers)
+	results, resInt, err := js.Analysis(jsUrl, threads, cookie, headers, target)
 	if err != nil {
 		logify.Warningf("Scan completed with some errors: %v", err)
 	}
