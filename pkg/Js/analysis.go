@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -14,42 +15,7 @@ import (
 	"github.com/cyinnove/logify"
 )
 
-func isValidSubdomain(s string) bool {
-	clean := strings.TrimPrefix(s, "https://")
-	clean = strings.TrimPrefix(clean, "http://")
-	lowered := strings.ToLower(clean)
-
-	badPrefixes := []string{"this.", "window.", "document.", "console.", "process.", "react.", "jquery.", "navigator."}
-	for _, p := range badPrefixes {
-		if strings.HasPrefix(lowered, p) {
-			return false
-		}
-	}
-
-	// 3. تقسيم السابدوماين لأجزاء لفحص بنيته
-	parts := strings.Split(lowered, ".")
-	if len(parts) < 2 {
-		return false
-	}
-
-	if len(parts[0]) == 1 && len(parts) > 2 && !strings.HasPrefix(s, "http") {
-		return false
-	}
-
-	tld := parts[len(parts)-1]
-	jsKeywords := map[string]bool{
-		"get": true, "set": true, "only": true, "style": true, "display": true,
-		"replace": true, "router": true, "ready": true, "state": true, "props": true,
-		"match": true, "length": true, "push": true, "pop": true, "value": true,
-	}
-	if jsKeywords[tld] {
-		return false
-	}
-
-	return true
-}
-
-func Analysis(urls []string, threads int, cookie string, headers []string) ([]ScanResult, map[string]int, error) {
+func Analysis(urls []string, threads int, cookie string, headers []string, targetdomain string) ([]ScanResult, map[string]int, error) {
 	restotal := map[string]int{
 		"Subdomains":   0,
 		"CloudBuckets": 0,
@@ -80,7 +46,7 @@ func Analysis(urls []string, threads int, cookie string, headers []string) ([]Sc
 
 			defer func() { <-sem }()
 
-			res, resInt, err := scanJSURL(u, cookie, headers)
+			res, resInt, err := scanJSURL(u, cookie, headers, targetdomain)
 			if err != nil {
 				logify.Warningf("Failed to scan JS URL %s: %v", u, err)
 				return
@@ -173,16 +139,15 @@ func getFileContent(url string, cookie string, headers []string) (string, error)
 
 // AnalyzeJSContent runs all regex-based extractors over the given JavaScript
 // source and returns the collected findings.
-func AnalyzeJSContent(source string) (ScanResult, map[string]int, error) {
+func AnalyzeJSContent(source string, targetDomain string) (ScanResult, map[string]int, error) {
 	resInt := make(map[string]int)
 	pretty := BeautifyJS(source)
 
 	subdomains := make(map[string]struct{})
 	for _, m := range subdomainRegex.FindAllString(pretty, -1) {
-		if isUrl(m) {
-			subdomains[m] = struct{}{}
-		} else if isValidSubdomain(m) {
-			subdomains[m] = struct{}{}
+		if host, valid := cleanAndValidateSubdomain(m, targetDomain); valid {
+
+			subdomains[host] = struct{}{}
 		}
 	}
 
@@ -271,17 +236,60 @@ func AnalyzeJSContent(source string) (ScanResult, map[string]int, error) {
 }
 
 // ScanJSURL fetches a JavaScript file from the given URL and analyzes it.
-func scanJSURL(url string, cookie string, headers []string) (ScanResult, map[string]int, error) {
+func scanJSURL(url string, cookie string, headers []string, targetDomain string) (ScanResult, map[string]int, error) {
 	body, err := getFileContent(url, cookie, headers)
 	if err != nil {
 		logify.Errorf("Failed to fetch JS file from %s: %v", url, err)
 		return ScanResult{}, nil, err
 	}
-	res, resInt, err := AnalyzeJSContent(body)
+	res, resInt, err := AnalyzeJSContent(body, targetDomain)
 	if err != nil {
 		logify.Errorf("Failed to analyze JS content from %s: %v", url, err)
 		return ScanResult{}, nil, err
 	}
 	res.URL = url
 	return res, resInt, nil
+}
+
+func cleanAndValidateSubdomain(match string, targetDomain string) (string, bool) {
+	match = strings.TrimSpace(strings.ToLower(match))
+
+	if strings.HasPrefix(match, "//") {
+		match = "https:" + match
+	}
+
+	if strings.HasPrefix(match, "http://") || strings.HasPrefix(match, "https://") {
+		if parsedURL, err := url.Parse(match); err == nil {
+			match = parsedURL.Host
+			return match, true
+		}
+	}
+
+	parts := strings.Split(strings.ToLower(targetDomain), ".")
+
+	containsValidPart := false
+	for i, part := range parts {
+		if i == len(parts)-1 {
+			continue
+		}
+
+		if part != "" && strings.Contains(match, part) {
+			containsValidPart = true
+			break
+		}
+	}
+
+	if !containsValidPart {
+		return "", false
+	}
+
+	if strings.ContainsAny(match, "()[]{}'\"`;>=<+*!,\\") {
+		return "", false
+	}
+
+	if !strings.Contains(match, ".") {
+		return "", false
+	}
+
+	return match, true
 }
