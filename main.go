@@ -14,7 +14,6 @@ import (
 const Version = "v1.0.0"
 
 func printBanner() {
-	// ألوان ANSI النيون
 	cyan := "\033[36m"
 	bold := "\033[1m"
 	reset := "\033[0m"
