@@ -7,10 +7,11 @@ A fast, concurrent, and high-performance reconnaissance tool built in Go. `Scara
 
 ## ✨ Features
 
-- **Historical URL Scraping:** Fetch historical data from **CommonCrawl**, **WebArchive**, and **UrlScan**.
-- **Smart JS Analysis:** Extracts subdomains, custom endpoints, cloud buckets, parameters, and sensitive secrets.
-- **Advanced Noise Filtering:** Built-in intelligence to filter out common JavaScript variables and false-positive subdomains (e.g., `this.style.display`).
-- **High Performance:** Multi-threaded execution for blazing-fast scanning.
+* **Historical URL Scraping:** Fetch historical data from CommonCrawl, WebArchive, and UrlScan.
+* **Active Crawling & Headless Scanning:** Dynamically crawl the target using headless browser capabilities to discover deep endpoints and map out modern SPA architectures.
+* **Smart JS Analysis:** Extracts subdomains, custom endpoints, cloud buckets, parameters, and sensitive secrets.
+* **Advanced Noise Filtering:** Built-in intelligence to filter out common JavaScript variables and false-positive subdomains (e.g., `this.style.display`).
+* **High Performance:** Multi-threaded execution for blazing-fast scanning.
 
 ---
 
